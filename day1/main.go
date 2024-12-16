@@ -1024,15 +1024,34 @@ func main() {
 		rightList = append(rightList, rightNumber)
 	}
 
+	fmt.Printf("part 1: %v\n", int64(getPart1(leftList, rightList)))
+	fmt.Printf("part 2: %v\n", int64(getPart2(leftList, rightList)))
+}
+
+func getPart1(leftList, rightList []int64) int64 {
 	slices.Sort(leftList)
 	slices.Sort(rightList)
 
-	// distances := make([]float64, 0, len(leftList))
 	sum := 0.0
 
 	for i := 0; i < len(leftList); i++ {
 		sum += math.Abs(float64(leftList[i] - rightList[i]))
 	}
 
-	fmt.Printf("%v\n", int64(sum))
+	return int64(sum)
+}
+
+func getPart2(leftList, rightList []int64) (answer int64) {
+	rightFrequencies := make(map[int64]int64)
+
+	for _, rn := range rightList {
+		rightFrequencies[rn] += 1
+	}
+
+	for _, ln := range leftList {
+		f := ln * rightFrequencies[ln]
+		answer += f
+	}
+
+	return
 }
