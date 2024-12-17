@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -12,7 +13,8 @@ func main() {
 	scanner, _ := utils.GetFileAsScanner("input.txt")
 
 	var report []int64
-	var numSafe uint
+	var numSafePart1 uint
+	var numSafeAfterDampening uint
 
 	for scanner.Scan() {
 		report = utils.Map(strings.Fields((scanner.Text())), func(s string) int64 {
@@ -21,11 +23,29 @@ func main() {
 		})
 
 		if isSafe(report) {
-			numSafe += 1
+			numSafePart1 += 1
+		} else if isSafeAfterDampening(report) {
+			numSafeAfterDampening += 1
 		}
 	}
 
-	fmt.Printf("part 1: %v\n", numSafe)
+	fmt.Printf("part 1: %v\n", numSafePart1)
+	fmt.Printf("part 2: %v\n", numSafePart1+numSafeAfterDampening)
+}
+
+func isSafeAfterDampening(report []int64) bool {
+	for index := range report {
+		if index > len(report)-1 {
+			break
+		}
+
+		probablyCorrectedReport := slices.Concat(report[:index], report[index+1:])
+		if isSafe(probablyCorrectedReport) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func isSafe(report []int64) bool {
