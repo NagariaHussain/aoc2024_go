@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"os"
+	"strconv"
 )
 
 func GetFileAsScanner(filePath string) (*bufio.Scanner, error) {
@@ -23,4 +24,9 @@ func Map[T any, M any](items []T, f func(T) M) []M {
 		mappedItems[index] = f(item)
 	}
 	return mappedItems
+}
+
+func ToInt(number string) int64 {
+	parsedNum, _ := strconv.ParseInt(number, 10, 0)
+	return parsedNum
 }
