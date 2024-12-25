@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/NagariaHussain/aoc2024_go/utils"
 )
 
 func main() {
-
 	rules := utils.GetLines("rules.txt")
 	updates := utils.GetLines("updates.txt")
 
@@ -17,13 +15,21 @@ func main() {
 }
 
 func GetPart1(orderingRules, updates []string) (midSum int64) {
-	rules := make(map[int64][]int64)
+	rules := make(map[int64]utils.Set)
 
 	for _, rule := range orderingRules {
 		parts := utils.Map(strings.Split(rule, "|"), utils.ToInt)
 		before, after := parts[0], parts[1]
 
-		rules[before] = append(rules[before], after)
+		currentSet, ok := rules[before]
+
+		if ok {
+			currentSet.Add(after)
+		} else {
+			newSet := utils.NewSet()
+			newSet.Add(after)
+			rules[before] = newSet
+		}
 	}
 
 	for _, update := range updates {
@@ -36,7 +42,8 @@ func GetPart1(orderingRules, updates []string) (midSum int64) {
 
 				// curNum comes before nextNum
 				// in other words no rule for nextNum before curNum should exist AND
-				if slices.Contains(rules[nextNum], curNum) { // TODO: implement set for faster membership checks
+				afterSet := rules[nextNum]
+				if afterSet.Has(curNum) {
 					isCorrect = false
 					break
 				}

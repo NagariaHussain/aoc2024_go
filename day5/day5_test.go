@@ -7,8 +7,7 @@ import (
 	"github.com/NagariaHussain/aoc2024_go/utils"
 )
 
-func TestDay5(t *testing.T) {
-	pageOrderRules := `47|53
+var pageOrderRules = `47|53
 97|13
 97|61
 97|47
@@ -30,12 +29,14 @@ func TestDay5(t *testing.T) {
 75|13
 53|13`
 
-	updates := `75,47,61,53,29
+var updates = `75,47,61,53,29
 97,61,53,29,13
 75,29,13
 75,97,47,61,53
 61,13,29
 97,13,75,29,47`
+
+func TestDay5(t *testing.T) {
 
 	t.Run("returns correct part 1", func(t *testing.T) {
 		var want int64 = 143
@@ -76,4 +77,15 @@ func TestDay5(t *testing.T) {
 			t.Errorf("`Has` should return true, returns false for %v", 16)
 		}
 	})
+}
+
+func BenchmarkSetBased(b *testing.B) {
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		GetPart1(
+			strings.Split(pageOrderRules, "\n"),
+			strings.Split(updates, "\n"),
+		)
+	}
 }
