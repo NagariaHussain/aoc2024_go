@@ -40,3 +40,22 @@ func ToInt(number string) int64 {
 	parsedNum, _ := strconv.ParseInt(number, 10, 0)
 	return parsedNum
 }
+
+type Set struct {
+	setMap map[int64]bool
+}
+
+func NewSet() Set {
+	set := new(Set)
+	set.setMap = make(map[int64]bool)
+	return *set
+}
+
+func (s *Set) Add(ele int64) {
+	s.setMap[ele] = true
+}
+
+func (s *Set) Has(ele int64) bool {
+	_, ok := s.setMap[ele]
+	return ok
+}

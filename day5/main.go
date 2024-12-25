@@ -56,3 +56,7 @@ func GetPart1(orderingRules, updates []string) (midSum int64) {
 
 	return
 }
+
+func GetPart2(orderingRules, updates []string) (midSum int64) {
+	return
+}
