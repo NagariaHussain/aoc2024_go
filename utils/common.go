@@ -18,6 +18,16 @@ func GetFileAsScanner(filePath string) (*bufio.Scanner, error) {
 	return scanner, nil
 }
 
+func GetLines(filePath string) (lines []string) {
+	scanner, _ := GetFileAsScanner(filePath)
+
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	return
+}
+
 func Map[T any, M any](items []T, f func(T) M) []M {
 	mappedItems := make([]M, len(items))
 	for index, item := range items {
