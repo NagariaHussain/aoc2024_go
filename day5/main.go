@@ -19,30 +19,36 @@ func GetPart1(orderingRules, updates []string) (midSum int64) {
 
 	for _, update := range updates {
 		printOrder := utils.Map(strings.Split(update, ","), utils.ToInt)
-		isCorrect := true
-
-		for index, curNum := range printOrder {
-			for i := index + 1; i < len(printOrder); i++ {
-				nextNum := printOrder[i]
-
-				// curNum comes before nextNum
-				// in other words no rule for nextNum before curNum should exist AND
-				afterSet := rules[nextNum]
-				if afterSet.Has(curNum) {
-					isCorrect = false
-					break
-				}
-			}
-
-			if !isCorrect {
-				break
-			}
-		}
+		isCorrect := isUpdateCorrect(printOrder, rules)
 
 		if isCorrect {
 			// find mid and sum it out
 			mid := len(printOrder) / 2
 			midSum += printOrder[mid]
+		}
+	}
+
+	return
+}
+
+func isUpdateCorrect(printOrder []int64, rules map[int64]utils.Set) (isCorrect bool) {
+	isCorrect = true
+
+	for index, curNum := range printOrder {
+		for i := index + 1; i < len(printOrder); i++ {
+			nextNum := printOrder[i]
+
+			// curNum comes before nextNum
+			// in other words no rule for nextNum before curNum should exist AND
+			afterSet := rules[nextNum]
+			if afterSet.Has(curNum) {
+				isCorrect = false
+				return isCorrect
+			}
+		}
+
+		if !isCorrect {
+			return false
 		}
 	}
 
