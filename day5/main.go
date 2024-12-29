@@ -15,22 +15,7 @@ func main() {
 }
 
 func GetPart1(orderingRules, updates []string) (midSum int64) {
-	rules := make(map[int64]utils.Set)
-
-	for _, rule := range orderingRules {
-		parts := utils.Map(strings.Split(rule, "|"), utils.ToInt)
-		before, after := parts[0], parts[1]
-
-		currentSet, ok := rules[before]
-
-		if ok {
-			currentSet.Add(after)
-		} else {
-			newSet := utils.NewSet()
-			newSet.Add(after)
-			rules[before] = newSet
-		}
-	}
+	rules := getRules(orderingRules)
 
 	for _, update := range updates {
 		printOrder := utils.Map(strings.Split(update, ","), utils.ToInt)
@@ -65,5 +50,26 @@ func GetPart1(orderingRules, updates []string) (midSum int64) {
 }
 
 func GetPart2(orderingRules, updates []string) (midSum int64) {
+	return
+}
+
+func getRules(orderingRules []string) (rules map[int64]utils.Set) {
+	rules = make(map[int64]utils.Set)
+
+	for _, rule := range orderingRules {
+		parts := utils.Map(strings.Split(rule, "|"), utils.ToInt)
+		before, after := parts[0], parts[1]
+
+		currentSet, ok := rules[before]
+
+		if ok {
+			currentSet.Add(after)
+		} else {
+			newSet := utils.NewSet()
+			newSet.Add(after)
+			rules[before] = newSet
+		}
+	}
+
 	return
 }
