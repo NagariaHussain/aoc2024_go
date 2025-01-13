@@ -12,6 +12,7 @@ func main() {
 	lines := utils.GetLines("input.txt")
 
 	fmt.Printf("part 1 answer: %v\n", GetPart1(lines))
+	fmt.Printf("part 2 answer: %v\n", GetPart2(lines))
 }
 
 type Location [2]int
@@ -55,6 +56,7 @@ func (gs *GridState) hasAlreadyVisitedWithDirection(loc Location, dir DirectionV
 
 func (gs *GridState) trackVisit(loc Location, dir DirectionVector) {
 	_, exists := gs.walkHistory[loc]
+	gs.grid[loc[0]][loc[1]] = "$"
 
 	if exists {
 		gs.walkHistory[loc] = append(gs.walkHistory[loc], dir)
@@ -65,44 +67,30 @@ func (gs *GridState) trackVisit(loc Location, dir DirectionVector) {
 
 func GetPart1(lines []string) (answer int) {
 	gridState := getGridState(lines)
-	grid := gridState.grid
-	curPos := gridState.startLocation
-	curDirection := gridState.startDirection
-
-	yMax := len(grid)
-	xMax := len(grid[0])
-
-	for {
-		nextPos := Location{curPos[0] + curDirection[0], curPos[1] + curDirection[1]}
-
-		// if nextPos out of bounds, its over!
-		if isOutOfBounds(nextPos, xMax, yMax) {
-			break
-		}
-
-		nextSpot := grid[nextPos[0]][nextPos[1]]
-
-		if nextSpot == Obstacle {
-			// change direction
-			if curDirection == Top {
-				curDirection = Right
-			} else if curDirection == Left {
-				curDirection = Top
-			} else if curDirection == Right {
-				curDirection = Bottom
-			} else {
-				curDirection = Left
-			}
-		} else {
-			curPos = nextPos
-			gridState.trackVisit(curPos, curDirection)
-		}
-	}
+	gridState.Walk()
 
 	return len(gridState.walkHistory)
 }
 
 func GetPart2(lines []string) (answer int) {
+	for i := 0; i < len(lines); i++ {
+		for j := 0; j < len(lines[0]); j++ {
+			gs := getGridState(lines)
+
+			if gs.grid[i][j] == Obstacle {
+				continue
+			}
+
+			// add obstacle
+			gs.grid[i][j] = Obstacle
+			goesOut := gs.Walk()
+
+			if !goesOut {
+				answer += 1
+			}
+		}
+	}
+
 	return
 }
 
@@ -118,8 +106,49 @@ func isOutOfBounds(coord Location, xMax, yMax int) bool {
 	return false
 }
 
-func Walk() (result string) {
-	return
+func (gridState *GridState) Walk() (goesOut bool) { // true if goes out, false if loops
+	grid := gridState.grid
+	curPos := gridState.startLocation
+	curDirection := gridState.startDirection
+
+	yMax := len(grid)
+	xMax := len(grid[0])
+
+	for {
+		nextPos := Location{curPos[0] + curDirection[0], curPos[1] + curDirection[1]}
+
+		// if nextPos out of bounds, its over!
+		if isOutOfBounds(nextPos, xMax, yMax) {
+			return true
+		}
+
+		nextSpot := grid[nextPos[0]][nextPos[1]]
+
+		if nextSpot == Obstacle {
+			// change direction
+			if curDirection == Top {
+				curDirection = Right
+			} else if curDirection == Left {
+				curDirection = Top
+			} else if curDirection == Right {
+				curDirection = Bottom
+			} else {
+				curDirection = Left
+			}
+		} else if gridState.hasAlreadyVisitedWithDirection(nextPos, curDirection) {
+			// IN A LOOP!
+			return false
+		} else {
+			curPos = nextPos
+			gridState.trackVisit(curPos, curDirection)
+		}
+	}
+}
+
+func (gs *GridState) printGrid() {
+	for _, row := range gs.grid {
+		fmt.Println(row)
+	}
 }
 
 func getGridState(lines []string) (gridState GridState) {
@@ -145,7 +174,7 @@ func getGridState(lines []string) (gridState GridState) {
 	gridState.startDirection = Top
 	gridState.walkHistory = make(map[Location][]DirectionVector)
 
-	gridState.walkHistory[curPos] = []DirectionVector{gridState.startDirection}
+	gridState.trackVisit(gridState.startLocation, gridState.startDirection)
 
 	return gridState
 }
