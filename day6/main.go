@@ -30,23 +30,44 @@ const (
 	VisitedBottom = "v"
 )
 
-var visitedMap = map[DirectionVector]string{
-	Top:    VisitedTop,
-	Left:   VisitedLeft,
-	Right:  VisitedRight,
-	Bottom: VisitedBottom,
+type GridState struct {
+	grid           [][]string
+	startLocation  Location
+	startDirection DirectionVector
+	walkHistory    map[Location][]DirectionVector // e.g. (1, 0): ["^", ">"]
 }
 
-func alreadyVisited(spot string) bool {
-	visitedSymbols := []string{"^", ">", "<", "v"}
-	return slices.Contains(visitedSymbols, spot)
+func (gs *GridState) hasAlreadyVisitedWithDirection(loc Location, dir DirectionVector) bool {
+	dirsVisited, exists := gs.walkHistory[loc]
+
+	if !exists {
+		return false
+	}
+
+	for _, dirVisit := range dirsVisited {
+		if dirVisit == dir {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (gs *GridState) trackVisit(loc Location, dir DirectionVector) {
+	_, exists := gs.walkHistory[loc]
+
+	if exists {
+		gs.walkHistory[loc] = append(gs.walkHistory[loc], dir)
+	} else {
+		gs.walkHistory[loc] = []DirectionVector{dir}
+	}
 }
 
 func GetPart1(lines []string) (answer int) {
-	answer = 1
-	curDirection := Top
-
-	grid, curPos := getGridAndStart(lines)
+	gridState := getGridState(lines)
+	grid := gridState.grid
+	curPos := gridState.startLocation
+	curDirection := gridState.startDirection
 
 	yMax := len(grid)
 	xMax := len(grid[0])
@@ -72,22 +93,13 @@ func GetPart1(lines []string) (answer int) {
 			} else {
 				curDirection = Left
 			}
-		} else if alreadyVisited(nextSpot) {
-			curPos = nextPos
-			grid[curPos[0]][curPos[1]] = visitedMap[curDirection]
 		} else {
-			// we can go here
-			answer += 1
 			curPos = nextPos
-			grid[curPos[0]][curPos[1]] = visitedMap[curDirection]
+			gridState.trackVisit(curPos, curDirection)
 		}
 	}
 
-	for _, line := range grid {
-		fmt.Println(line)
-	}
-
-	return
+	return len(gridState.walkHistory)
 }
 
 func GetPart2(lines []string) (answer int) {
@@ -110,7 +122,7 @@ func Walk() (result string) {
 	return
 }
 
-func getGridAndStart(lines []string) ([][]string, Location) {
+func getGridState(lines []string) (gridState GridState) {
 	grid := make([][]string, len(lines))
 	curPos := *new(Location)
 	startPosFound := false
@@ -124,10 +136,16 @@ func getGridAndStart(lines []string) ([][]string, Location) {
 				curPos[0] = index
 				curPos[1] = guardCurrentLocation
 				startPosFound = true
-				grid[curPos[0]][curPos[1]] = visitedMap[Top]
 			}
 		}
 	}
 
-	return grid, curPos
+	gridState.grid = grid
+	gridState.startLocation = curPos
+	gridState.startDirection = Top
+	gridState.walkHistory = make(map[Location][]DirectionVector)
+
+	gridState.walkHistory[curPos] = []DirectionVector{gridState.startDirection}
+
+	return gridState
 }
