@@ -29,23 +29,7 @@ func GetPart1(lines []string) (answer int) {
 	answer = 1
 	curDirection := Top
 
-	grid := make([][]string, len(lines))
-	curPos := *new(Location)
-	startPosFound := false
-
-	for index, line := range lines {
-		grid[index] = strings.Split(line, "")
-
-		if !startPosFound {
-			guardCurrentLocation := slices.Index(grid[index], "^")
-			if guardCurrentLocation != -1 {
-				curPos[0] = index
-				curPos[1] = guardCurrentLocation
-				startPosFound = true
-				grid[curPos[0]][curPos[1]] = AlreadyVisited
-			}
-		}
-	}
+	grid, curPos := getGridAndStart(lines)
 
 	yMax := len(grid)
 	xMax := len(grid[0])
@@ -84,6 +68,10 @@ func GetPart1(lines []string) (answer int) {
 	return
 }
 
+func GetPart2(lines []string) (answer int) {
+	return
+}
+
 func isOutOfBounds(coord Location, xMax, yMax int) bool {
 	if coord[0] < 0 || coord[0] >= yMax {
 		return true
@@ -94,4 +82,30 @@ func isOutOfBounds(coord Location, xMax, yMax int) bool {
 	}
 
 	return false
+}
+
+func Walk() (result string) {
+	return
+}
+
+func getGridAndStart(lines []string) ([][]string, Location) {
+	grid := make([][]string, len(lines))
+	curPos := *new(Location)
+	startPosFound := false
+
+	for index, line := range lines {
+		grid[index] = strings.Split(line, "")
+
+		if !startPosFound {
+			guardCurrentLocation := slices.Index(grid[index], "^")
+			if guardCurrentLocation != -1 {
+				curPos[0] = index
+				curPos[1] = guardCurrentLocation
+				startPosFound = true
+				grid[curPos[0]][curPos[1]] = AlreadyVisited
+			}
+		}
+	}
+
+	return grid, curPos
 }
