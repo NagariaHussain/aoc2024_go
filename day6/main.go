@@ -22,8 +22,25 @@ var Left = DirectionVector{0, -1}
 var Right = DirectionVector{0, 1}
 var Bottom = DirectionVector{1, 0}
 
-const Obstacle = "#"
-const AlreadyVisited = "$"
+const (
+	Obstacle      = "#"
+	VisitedTop    = "^"
+	VisitedLeft   = "<"
+	VisitedRight  = ">"
+	VisitedBottom = "v"
+)
+
+var visitedMap = map[DirectionVector]string{
+	Top:    VisitedTop,
+	Left:   VisitedLeft,
+	Right:  VisitedRight,
+	Bottom: VisitedBottom,
+}
+
+func alreadyVisited(spot string) bool {
+	visitedSymbols := []string{"^", ">", "<", "v"}
+	return slices.Contains(visitedSymbols, spot)
+}
 
 func GetPart1(lines []string) (answer int) {
 	answer = 1
@@ -55,14 +72,19 @@ func GetPart1(lines []string) (answer int) {
 			} else {
 				curDirection = Left
 			}
-		} else if nextSpot == AlreadyVisited {
+		} else if alreadyVisited(nextSpot) {
 			curPos = nextPos
+			grid[curPos[0]][curPos[1]] = visitedMap[curDirection]
 		} else {
 			// we can go here
 			answer += 1
 			curPos = nextPos
-			grid[curPos[0]][curPos[1]] = AlreadyVisited
+			grid[curPos[0]][curPos[1]] = visitedMap[curDirection]
 		}
+	}
+
+	for _, line := range grid {
+		fmt.Println(line)
 	}
 
 	return
@@ -102,7 +124,7 @@ func getGridAndStart(lines []string) ([][]string, Location) {
 				curPos[0] = index
 				curPos[1] = guardCurrentLocation
 				startPosFound = true
-				grid[curPos[0]][curPos[1]] = AlreadyVisited
+				grid[curPos[0]][curPos[1]] = visitedMap[Top]
 			}
 		}
 	}
